@@ -21,12 +21,27 @@ This template was inspired by the [IsaacLab extension template](https://github.c
 
 - Install Genesis, see the [installation guide](https://genesis-world.readthedocs.io/en/latest/user_guide/overview/installation.html).
 
-- Using a python interpreter that has Genesis installed, install the library
+    - Alternatively, follow the steps below for a simpler installation.
+        ```
+        conda env create -f environment.yaml
+        conda activate genesis
+        pip install genesis-world
+        ```
 
-```
-cd exts/genesis_go2
-python -m pip install -e .
-```
+- Install rsl_rl to use the PPO reinforcement learning algorithm.
+
+    ```
+    git submodule init
+    git submodule update
+    cd rsl_rl && pip install -e .
+    ```
+
+- Using a python interpreter that has Genesis installed, install the library.
+
+    ```
+    cd exts/genesis_go2
+    python -m pip install -e .
+    ```
 
 
 #### Genesis

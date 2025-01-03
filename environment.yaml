@@ -115,7 +115,7 @@ dependencies:
       - fonttools==4.55.3
       - freetype-py==2.5.1
       - fsspec==2024.12.0
-      - genesis-world==0.2.1
+      # genesis-world==0.2.1
       - glfw==2.8.0
       - grpcio==1.68.1
       - imageio==2.36.1
