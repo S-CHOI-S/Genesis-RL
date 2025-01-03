@@ -39,7 +39,7 @@ This template was inspired by the [IsaacLab extension template](https://github.c
 - Using a python interpreter that has Genesis installed, install the library.
 
     ```
-    cd exts/genesis_go2
+    cd exts
     python -m pip install -e .
     ```
 
