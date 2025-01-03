@@ -3,7 +3,7 @@ import os
 import pickle
 
 import torch
-from go2_env import Go2Env
+from genesis_go2.env.go2_env import Go2Env
 from rsl_rl.runners import OnPolicyRunner
 
 import genesis as gs
@@ -47,5 +47,5 @@ if __name__ == "__main__":
 
 """
 # evaluation
-python examples/locomotion/go2_eval.py -e go2-walking -v --ckpt 100
+python scripts/go2_eval.py -e go2-walking -v --ckpt 100
 """
