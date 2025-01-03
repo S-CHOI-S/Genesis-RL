@@ -1,0 +1,7 @@
+setup.py
+genesis_go2/__init__.py
+genesis_go2.egg-info/PKG-INFO
+genesis_go2.egg-info/SOURCES.txt
+genesis_go2.egg-info/dependency_links.txt
+genesis_go2.egg-info/not-zip-safe
+genesis_go2.egg-info/top_level.txt

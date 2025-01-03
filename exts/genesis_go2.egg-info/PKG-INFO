@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: genesis_go2
+Version: 0.1.0
+Summary: Scripts and utilities for genesis_go2
+Home-page: https://github.com/ARC-KIST/genesis-go2.git
+Author: Sol Choi
+Author-email: solchoi@yonsei.ac.kr
+Maintainer: Sol Choi
+Maintainer-email: solchoi@yonsei.ac.kr
+Classifier: Programming Language :: Python :: 3.9
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
