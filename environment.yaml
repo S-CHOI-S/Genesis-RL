@@ -176,6 +176,7 @@ dependencies:
       - tensorboard-data-server==0.7.2
       - tetgen==0.6.4
       - tifffile==2024.8.30
+      - toml==0.10.2
       - tomli==2.2.1
       - tqdm==4.67.1
       - typing-inspect==0.9.0
