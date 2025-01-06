@@ -1,2 +1,5 @@
 *.zip
 logs
+*__pycache__
+*.egg-info
+video

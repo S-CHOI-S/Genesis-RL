@@ -1,1 +1,0 @@
-from .go2_env import *
