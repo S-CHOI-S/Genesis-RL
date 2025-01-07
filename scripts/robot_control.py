@@ -38,6 +38,13 @@ go2 = scene.add_entity(
         quat=[1.0, 0.0, 0.0, 0.0],
     )
 )
+kimanoid = scene.add_entity(
+    gs.morphs.URDF(
+        file=f"{GENESIS_GO2_MODEL_DIR}/kimanoid/urdf/kist_humanoid3.urdf",
+        pos=[0.0, -1.0, 0.85],
+        quat=[1.0, 0.0, 0.0, 0.0],
+    ),
+)
 ########################## build ##########################
 scene.build()
 
@@ -69,6 +76,27 @@ go2_jnt_names = [
     "RL_calf_joint",
 ]
 go2_dofs_idx = [go2.get_joint(name).dof_idx_local for name in go2_jnt_names]
+
+kimanoid_jnt_names = [
+    "LLJ1",
+    "RLJ1",
+    "BWJ1",
+    "LLJ2",
+    "RLJ2",
+    "BWJ2",
+    "LLJ3",
+    "RLJ3",
+    "BWJ3",
+    "LLJ4",
+    "RLJ4",
+    "LLJ5",
+    "RLJ5",
+    "LLJ6",
+    "RLJ6",
+    "LLJ7",
+    "RLJ7",
+]
+kimanoid_dofs_idx = [kimanoid.get_joint(name).dof_idx_local for name in kimanoid_jnt_names]
 
 ############ Optional: set control gains ############
 # franka
@@ -107,6 +135,24 @@ go2.set_dofs_force_range(
     dofs_idx_local = go2_dofs_idx,
 )
 
+# kimanoid
+# set positional gains
+kimanoid.set_dofs_kp(
+    kp             = np.array([150, 150, 20, 150, 150, 20, 150, 150, 20, 150, 150, 20, 20, 20, 20, 20, 20]),
+    dofs_idx_local = kimanoid_dofs_idx,
+)
+# set velocity gains
+kimanoid.set_dofs_kv(
+    kv             = np.array([5, 5, 2, 5, 5, 2, 5, 5, 2, 5, 5, 2, 2, 2, 2, 2, 2]),
+    dofs_idx_local = kimanoid_dofs_idx,
+)
+# set force range for safety
+kimanoid.set_dofs_force_range(
+    lower          = np.array([-100, -100, -300, -100, -100, -300, -300, -300, -300, -300, -300, -100, -100, -100, -100, -20, -20]),
+    upper          = np.array([ 100,  100,  300,  100,  100,  300,  300,  300,  300,  300,  300,  100,  100,  100,  100,  20,  20]),
+    dofs_idx_local = kimanoid_dofs_idx,
+)
+
 # Hard reset
 for i in range(150):
     if i < 50:
@@ -117,6 +163,7 @@ for i in range(150):
         franka.set_dofs_position(np.array([0, 0, 0, 0, 0, 0, 0, 0, 0]), franka_dofs_idx)
         
     go2.set_dofs_position(np.array([0, 0.8, -1.5, 0, 0.8, -1.5, 0, 1.0, -1.5, 0, 1.0, -1.5]), go2_dofs_idx)
+    kimanoid.set_dofs_position(np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), kimanoid_dofs_idx)
 
     scene.step()
 
@@ -127,6 +174,10 @@ for i in range(1250):
             np.array([1, 1, 0, 0, 0, 0, 0, 0.04, 0.04]),
             franka_dofs_idx,
         )
+        kimanoid.control_dofs_position(
+            np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            kimanoid_dofs_idx,
+        )
     elif i == 250:
         franka.control_dofs_position(
             np.array([-1, 0.8, 1, -2, 1, 0.5, -0.5, 0.04, 0.04]),
@@ -136,6 +187,10 @@ for i in range(1250):
         franka.control_dofs_position(
             np.array([0, 0, 0, 0, 0, 0, 0, 0, 0]),
             franka_dofs_idx,
+        )
+        kimanoid.control_dofs_position(
+            np.array([0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            kimanoid_dofs_idx,
         )
     elif i == 750:
         # control first dof with velocity, and the rest with position
@@ -152,6 +207,10 @@ for i in range(1250):
             np.array([0, 0, 0, 0, 0, 0, 0, 0, 0]),
             franka_dofs_idx,
         )
+        # kimanoid.control_dofs_position(
+        #     np.array([0.5, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        #     kimanoid_dofs_idx,
+        # )
     
     go2.control_dofs_position(
         np.array([0, 0.8, -1.5, 0, 0.8, -1.5, 0, 1.0, -1.5, 0, 1.0, -1.5]),
@@ -162,9 +221,11 @@ for i in range(1250):
     # If using force control, it's the same as the given control command
     print('franka control force:', franka.get_dofs_control_force(franka_dofs_idx))
     print('go2 control force:', go2.get_dofs_control_force(go2_dofs_idx))
+    print('kimanoid control force:', kimanoid.get_dofs_control_force(kimanoid_dofs_idx))
 
     # This is the actual force experienced by the dof
     print('franka internal force:', franka.get_dofs_force(franka_dofs_idx))
     print('go2 internal force:', go2.get_dofs_force(go2_dofs_idx))
+    print('kimanoid control force:', kimanoid.get_dofs_control_force(kimanoid_dofs_idx))
 
     scene.step()
