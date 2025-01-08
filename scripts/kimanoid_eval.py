@@ -1,52 +1,13 @@
 import argparse
 import os
 import pickle
+import re
 
 import torch
 from genesis_go2.env.kimanoid_env import KimanoidEnv
 from rsl_rl.runners import OnPolicyRunner
 
 import genesis as gs
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--exp_name", type=str, default="kimanoid-walking")
-    parser.add_argument("--ckpt", type=int, default=100)
-    args = parser.parse_args()
-
-    gs.init()
-
-    log_dir = f"logs/{args.exp_name}"
-    env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(f"{log_dir}/cfgs.pkl", "rb"))
-    reward_cfg["reward_scales"] = {}
-
-    env = KimanoidEnv(
-        num_envs=1,
-        env_cfg=env_cfg,
-        obs_cfg=obs_cfg,
-        reward_cfg=reward_cfg,
-        command_cfg=command_cfg,
-        show_viewer=True,
-    )
-
-    runner = OnPolicyRunner(env, train_cfg, log_dir, device="cuda:0")
-    resume_path = os.path.join(log_dir, f"model_{args.ckpt}.pt")
-    runner.load(resume_path)
-    policy = runner.get_inference_policy(device="cuda:0")
-
-    obs, _ = env.reset()
-    with torch.no_grad():
-        while True:
-            actions = policy(obs)
-            obs, _, rews, dones, infos = env.step(actions)
-
-if __name__ == "__main__":
-    main()
-
-"""
-# To evaluate:
-python KH_eval.py -e kh-walking --ckpt 100
-"""
 
 def get_checkpoint_path(
     log_path: str, run_dir: str = ".*", checkpoint: str = ".*", other_dirs: list[str] = None, sort_alpha: bool = True
@@ -93,3 +54,59 @@ def get_checkpoint_path(
     checkpoint_file = model_checkpoints[-1]
 
     return os.path.join(run_path, checkpoint_file)
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-e", "--exp_name", type=str, default="kimanoid-walking")
+    parser.add_argument("--ckpt", type=int, default=100)
+    args = parser.parse_args()
+
+    gs.init()
+
+    try:
+        log_path = os.path.abspath(f"logs/{args.exp_name}")
+        print(f"[DEBUG] Searching in log_path: {log_path}")
+
+        resume_path = get_checkpoint_path(
+            log_path=log_path,
+            run_dir=f".*",
+            checkpoint="model_.*.pt",
+            sort_alpha=True
+        )
+        print(f"[INFO] Using checkpoint: {resume_path}")
+    except FileNotFoundError as e:
+        print(f"[ERROR] Failed to find a valid checkpoint: {e}")
+        return
+
+    log_dir = os.path.dirname(resume_path)
+    # print(f"[DEBUG] Derived log_dir: {log_dir}")
+    env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(f"{log_dir}/cfgs.pkl", "rb"))
+    reward_cfg["reward_scales"] = {}
+
+    env = KimanoidEnv(
+        num_envs=1,
+        env_cfg=env_cfg,
+        obs_cfg=obs_cfg,
+        reward_cfg=reward_cfg,
+        command_cfg=command_cfg,
+        show_viewer=True,
+    )
+
+    runner = OnPolicyRunner(env, train_cfg, log_dir, device="cuda:0")
+    resume_path = os.path.join(log_dir, f"model_{args.ckpt}.pt")
+    runner.load(resume_path)
+    policy = runner.get_inference_policy(device="cuda:0")
+
+    obs, _ = env.reset()
+    with torch.no_grad():
+        while True:
+            actions = policy(obs)
+            obs, _, rews, dones, infos = env.step(actions)
+
+if __name__ == "__main__":
+    main()
+
+"""
+# To evaluate:
+python scripts/kimanoid_eval.py
+"""

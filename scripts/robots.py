@@ -23,6 +23,10 @@ scene = gs.Scene(
         ambient_light    = (0.1, 0.1, 0.1),
     ),
     renderer=gs.renderers.Rasterizer(),
+    # sim_options=gs.options.SimOptions(
+    #     dt=0.01,
+    #     gravity=(0, 0, 0.1)
+    # ),
 )
 
 plane = scene.add_entity(

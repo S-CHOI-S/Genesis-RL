@@ -138,12 +138,14 @@ go2.set_dofs_force_range(
 # kimanoid
 # set positional gains
 kimanoid.set_dofs_kp(
-    kp             = np.array([150, 150, 20, 150, 150, 20, 150, 150, 20, 150, 150, 20, 20, 20, 20, 20, 20]),
+    # kp             = np.array([150, 150, 20, 150, 150, 20, 150, 150, 20, 150, 150, 20, 20, 20, 20, 20, 20]),
+    kp             = np.array([150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150]),
     dofs_idx_local = kimanoid_dofs_idx,
 )
 # set velocity gains
 kimanoid.set_dofs_kv(
-    kv             = np.array([5, 5, 2, 5, 5, 2, 5, 5, 2, 5, 5, 2, 2, 2, 2, 2, 2]),
+    # kv             = np.array([5, 5, 2, 5, 5, 2, 5, 5, 2, 5, 5, 2, 2, 2, 2, 2, 2]),
+    kv             = np.array([5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]),
     dofs_idx_local = kimanoid_dofs_idx,
 )
 # set force range for safety
@@ -183,13 +185,25 @@ for i in range(1250):
             np.array([-1, 0.8, 1, -2, 1, 0.5, -0.5, 0.04, 0.04]),
             franka_dofs_idx,
         )
+        kimanoid.control_dofs_position(
+            np.array([-0.5, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            kimanoid_dofs_idx,
+        )
+        # kimanoid.control_dofs_position(
+        #     np.array([0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        #     kimanoid_dofs_idx,
+        # )
     elif i == 500:
         franka.control_dofs_position(
             np.array([0, 0, 0, 0, 0, 0, 0, 0, 0]),
             franka_dofs_idx,
         )
+        # kimanoid.control_dofs_force(
+        #     np.array([0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        #     kimanoid_dofs_idx,
+        # )
         kimanoid.control_dofs_position(
-            np.array([0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            np.array([-0.5, 0.5, 0, 0.255, -0.255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
             kimanoid_dofs_idx,
         )
     elif i == 750:
@@ -202,15 +216,23 @@ for i in range(1250):
             np.array([1.0, 0, 0, 0, 0, 0, 0, 0, 0])[:1],
             franka_dofs_idx[:1],
         )
+        kimanoid.control_dofs_position(
+            np.array([-0.5, 0.5, 0, 0.255, -0.255, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+            kimanoid_dofs_idx,
+        )
     elif i == 1000:
         franka.control_dofs_force(
             np.array([0, 0, 0, 0, 0, 0, 0, 0, 0]),
             franka_dofs_idx,
         )
         # kimanoid.control_dofs_position(
-        #     np.array([0.5, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        #     np.array([0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
         #     kimanoid_dofs_idx,
         # )
+        kimanoid.control_dofs_position(
+            np.array([-0.5, 0.5, 0, 0.255, -0.255, 0, 1, -1, 0, 1, -1, 0, 0, 0, 0, 0, 0]),
+            kimanoid_dofs_idx,
+        )
     
     go2.control_dofs_position(
         np.array([0, 0.8, -1.5, 0, 0.8, -1.5, 0, 1.0, -1.5, 0, 1.0, -1.5]),
@@ -226,6 +248,6 @@ for i in range(1250):
     # This is the actual force experienced by the dof
     print('franka internal force:', franka.get_dofs_force(franka_dofs_idx))
     print('go2 internal force:', go2.get_dofs_force(go2_dofs_idx))
-    print('kimanoid control force:', kimanoid.get_dofs_control_force(kimanoid_dofs_idx))
+    print('kimanoid control force:', kimanoid.get_dofs_force(kimanoid_dofs_idx))
 
     scene.step()
